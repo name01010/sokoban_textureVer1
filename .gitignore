@@ -1,0 +1,11 @@
+**/out/
+**/out-test/
+**/*.class
+**/sources.txt
+**/save.properties
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
