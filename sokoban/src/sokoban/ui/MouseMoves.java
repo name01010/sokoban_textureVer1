@@ -8,7 +8,6 @@ import sokoban.core.StepResult;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
@@ -18,7 +17,7 @@ import java.util.List;
 /** Click one of the six adjacent cells. No path finding or changes to game rules. */
 final class MouseMoves {
     record Target(Direction direction, int cell, StepResult preview,
-                  IsoRenderer.CellProjection projection, Rectangle label) {
+                  IsoRenderer.CellProjection projection) {
         boolean available() { return preview != null; }
     }
 
@@ -41,14 +40,8 @@ final class MouseMoves {
             int cell = level.neighbor(state.player, direction);
             var projection = renderer.projectCell(px + direction.dx, py + direction.dy, pz + direction.dz, flat);
             StepResult result = Engine.step(level, state, direction);
-            Rectangle label = null;
-            if (direction.dz != 0 && result != null) {
-                Point2D center = projection.center();
-                label = new Rectangle((int) Math.round(center.getX()) - 31,
-                        (int) Math.round(center.getY()) - 12, 62, 24);
-            }
             // Keep blocked/outside neighbours in picking, so clicking them cannot select a cell behind them.
-            targets.add(new Target(direction, cell, result, projection, label));
+            targets.add(new Target(direction, cell, result, projection));
         }
     }
 
@@ -58,8 +51,7 @@ final class MouseMoves {
         double distance = Double.POSITIVE_INFINITY;
         boolean tied = false;
         for (Target target : targets) {
-            if (!target.projection().shape().contains(x, y)
-                    && (target.label() == null || !target.label().contains(x, y))) continue;
+            if (!target.projection().shape().contains(x, y)) continue;
             double candidate = target.projection().center().distanceSq(x, y);
             if (candidate < distance - .01) {
                 nearest = target;
@@ -98,20 +90,6 @@ final class MouseMoves {
             g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
                     10f, new float[]{5f, 4f}, 0));
             g.draw(arrival.edges());
-        }
-        // Labels sit on the actual vertical cells; the full cell surface also accepts clicks.
-        g.setFont(Theme.font(Font.BOLD, 12f));
-        for (Target target : targets) {
-            Rectangle r = target.label();
-            if (r == null) continue;
-            Color color = color(target);
-            g.setColor(alpha(Theme.BG_BOTTOM, 235));
-            g.fillRoundRect(r.x, r.y, r.width, r.height, 9, 9);
-            g.setColor(color);
-            g.setStroke(new BasicStroke(target == hover ? 2f : 1f));
-            g.drawRoundRect(r.x, r.y, r.width, r.height, 9, 9);
-            Gfx.centered(g, target.direction() == Direction.ABOVE ? "↑ 위층" : "↓ 아래층",
-                    (int) r.getCenterX(), r.y + 17);
         }
         g.dispose();
     }
