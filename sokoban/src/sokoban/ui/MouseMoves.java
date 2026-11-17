@@ -94,7 +94,7 @@ final class MouseMoves {
         if (hover != null && hover.available() && hover.preview().pushed()) {
             int boxTo = hover.preview().blockTo();
             var arrival = renderer.projectCell(level.x(boxTo), level.y(boxTo), level.z(boxTo), level.h == 1);
-            g.setColor(Theme.ACCENT);
+            g.setColor(color(hover));
             g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
                     10f, new float[]{5f, 4f}, 0));
             g.draw(arrival.edges());
@@ -125,7 +125,8 @@ final class MouseMoves {
     }
 
     private static Color color(Target target) {
-        return !target.available() ? Theme.TEXT_DIM : target.preview().pushed() ? Theme.ACCENT : Theme.PLAYER;
+        if (!target.available()) return Theme.TEXT_DIM;
+        return target.direction().dz == 0 ? Theme.PREVIEW_PLANAR : Theme.PREVIEW_VERTICAL;
     }
 
     private static Color alpha(Color color, int alpha) {
