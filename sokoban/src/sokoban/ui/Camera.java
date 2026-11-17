@@ -4,7 +4,7 @@ import sokoban.core.Direction;
 
 /**
  * 아이소메트릭 카메라. 수직축(z)을 중심으로 한 회전(yaw)과 기울기(pitch)를 가진다.
- * yaw 0°, pitch 30° 가 기본 3D 시점이다. 시점은 90° 단위(4방향)로 부드럽게 돌며, 마우스로는 돌리지 않는다.
+ * yaw 0°, pitch 30° 가 기본 3D 시점이다. 시점은 45° 단위(8방향)로 부드럽게 돌며, 마우스로는 돌리지 않는다.
  * 이동 키는 항상 "화면 기준"으로 해석한다.
  *
  * <p>2D 탑뷰(&lt;b&gt;yaw -45°, pitch 90°&lt;/b&gt;)는 기울기가 90°라 z축이 화면에서 사라지고,
@@ -17,8 +17,8 @@ import sokoban.core.Direction;
  * ({@link #expandFromTopView()}).
  */
 public final class Camera {
-    /** 네 아이소메트릭 구도 사이에서 회전한다. 정면 구도에는 정지하지 않는다. */
-    public static final double STEP_DEG = 90;
+    /** 시점 한 칸의 회전각. 아이소메트릭과 축 정렬 구도를 번갈아 볼 수 있다. */
+    public static final double STEP_DEG = 45;
     /** 기본 3D 시점의 기울기(도). */
     public static final double DEFAULT_PITCH = 30;
     /** 2D 탑뷰의 기울기(도). 이 값에서는 z축이 화면에서 완전히 사라진다. */
@@ -50,7 +50,7 @@ public final class Camera {
     /** 진행 중인 확장 연출의 경과(ms). -1이면 연출 없음. */
     private long expandElapsed = -1;
 
-    /** 90°씩 회전 (+1 = 시점이 왼쪽으로 돈다. 화면 속 장면은 시계 방향으로 돈다). */
+    /** 45°씩 회전 (+1 = 시점이 왼쪽으로 돈다. 화면 속 장면은 시계 방향으로 돈다). */
     public void rotateStep(int steps) {
         finishExpansion(); // 연출 중에 시점을 조작하면 연출을 끊고 바로 3D에서 돈다
         targetYaw = Math.round(targetYaw / STEP_DEG) * STEP_DEG + STEP_DEG * steps;
@@ -150,7 +150,7 @@ public final class Camera {
      * 화면 기준 키 방향 → 격자 방향.
      * UP=화면 오른쪽 위, RIGHT=오른쪽 아래, DOWN=왼쪽 아래, LEFT=왼쪽 위. 위/아래(z) 키는 그대로.
      *
-     * <p>3D 조작 시점은 90° 배수다. 탑뷰(-45°)와 전환 중의 임의 각도도 처리할 수 있도록
+     * <p>3D 조작 시점은 45° 배수다. 탑뷰(-45°)와 전환 중의 임의 각도도 처리할 수 있도록
      * 시점을 가장 가까운 90° 배수로 양자화하고 그만큼 격자 방향을 돌린다. 이렇게 하면 어떤 시점에서도
      * 네 키가 서로 다른 방향을 가리키고(전단사), 키가 가리키는 화면 방향과 실제로 움직이는
      * 화면 방향이 가장 잘 맞는다.

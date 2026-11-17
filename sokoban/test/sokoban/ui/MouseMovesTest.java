@@ -60,21 +60,21 @@ public final class MouseMovesTest {
         check(lv.initial.player == at(2, 2, 0), "layout changed state");
     }
 
-    public static void allSixCellsAtEveryIsometricAngle() {
+    public static void allSixCellsAtEveryCameraAngle() {
         Level lv = level(false, new int[0], -1, -1);
         Camera cam = new Camera();
         IsoRenderer renderer = new IsoRenderer();
         MouseMoves mouse = new MouseMoves();
-        for (int quarter = 0; quarter < 4; quarter++) {
-            cam.yaw = cam.targetYaw = quarter * 90;
+        for (int step = 0; step < 8; step++) {
+            cam.yaw = cam.targetYaw = step * 45;
             mouse.layout(lv, lv.initial, renderer, cam, AREA);
             for (Direction d : Direction.values()) {
                 var t = pick(mouse, renderer, 2 + d.dx, 2 + d.dy, 2 + d.dz, false);
-                check(t != null && t.direction() == d && t.available(), "rotation " + quarter + " direction " + d);
-                // Vertical cells accept their face away from the text badge, too.
+                check(t != null && t.direction() == d && t.available(), "rotation " + step + " direction " + d);
+                // Hit the actual vertical face away from its center, including axis-aligned views.
                 if (d.dz != 0) {
                     Point2D center = renderer.projectCell(2, 2, 2 + d.dz, false).center();
-                    var face = mouse.pick((int) center.getX(), (int) center.getY() + 16);
+                    var face = mouse.pick((int) center.getX() + 16, (int) center.getY());
                     check(face != null && face.direction() == d, "vertical face must be clickable: " + d);
                 }
             }
@@ -126,14 +126,25 @@ public final class MouseMovesTest {
 
     /** Generate review images without a window or changing the user's save. */
     public static void main(String[] args) throws Exception {
+        CameraTest.mappingIsBijectionForEveryEighthTurn();
+        CameraTest.cameraStepsByEighthTurnAndAnimates();
+        CameraTest.topViewProjectsSquareTiles();
+        CameraTest.expansionFromTopViewAnimatesAndConverges();
+        CameraTest.resetViewRestoresDefaultTilt();
+        flatNeighbourClicksAndIgnoredCells();
+        allSixCellsAtEveryCameraAngle();
+        blockedClicksAndVerticalPushes();
+        resizeAnimationAndClearedTargets();
+        System.out.println("9 focused camera and mouse checks passed.");
         Path dir = Path.of("out-test/mouse-review");
         Files.createDirectories(dir);
         for (int sample = 0; sample < 4; sample++) {
             boolean flat = sample == 0;
             Level lv = level(flat, new int[]{flat ? at(3, 2, 0) : at(2, 2, 3)}, -1, -1);
+            if (sample == 1) lv = sokoban.level.LevelRepository.load(Path.of("levels"), GameConfig.defaults()).levels.get(7);
             Camera cam = new Camera();
             if (flat) cam.snapToTopView();
-            else cam.yaw = cam.targetYaw = (sample - 1) * 90;
+            else cam.yaw = cam.targetYaw = (sample - 1) * 45;
             int w = sample == 3 ? 640 : 1000, h = sample == 3 ? 480 : 700;
             Rectangle area = new Rectangle(20, 112, w - 40, h - 178);
             IsoRenderer renderer = new IsoRenderer();
@@ -143,7 +154,7 @@ public final class MouseMovesTest {
             g.setColor(Theme.BG_BOTTOM); g.fillRect(0, 0, w, h);
             renderer.render(g, lv, lv.initial, null, area, cam, false);
             mouse.layout(lv, lv.initial, renderer, cam, area);
-            var hover = flat ? pick(mouse, renderer, 3, 2, 0, true) : pick(mouse, renderer, 2, 2, 3, false);
+            var hover = sample == 1 ? null : flat ? pick(mouse, renderer, 3, 2, 0, true) : pick(mouse, renderer, 2, 2, 3, false);
             mouse.paint(g, renderer, lv, hover);
             g.setFont(Theme.font(Font.PLAIN, 14)); g.setColor(Theme.TEXT);
             Gfx.centered(g, mouse.description(hover, lv), w / 2, 88);

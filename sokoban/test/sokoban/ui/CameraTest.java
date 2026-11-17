@@ -5,7 +5,7 @@ import sokoban.core.Direction;
 import java.util.EnumSet;
 import java.util.Set;
 
-/** 아이소메트릭 4방향 시점과 화면 기준 입력 매핑 테스트. AllTests에서 호출한다. */
+/** 8방향 시점과 화면 기준 입력 매핑 테스트. AllTests에서 호출한다. */
 public final class CameraTest {
     private static final Direction[] KEYS = {Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT};
 
@@ -20,8 +20,8 @@ public final class CameraTest {
         check(Camera.mapKey(Direction.UP, 360) == Direction.UP, "360° 는 기본 시점과 같다");
     }
 
-    /** 90° 단위 아이소메트릭 시점 전부에서 네 키가 서로 다른 격자 방향을 가리킨다. */
-    public static void mappingIsBijectionForEveryQuarterTurn() {
+    /** 45° 단위 시점 전부에서 네 키가 서로 다른 격자 방향을 가리킨다. */
+    public static void mappingIsBijectionForEveryEighthTurn() {
         for (int step = -8; step <= 16; step++) {
             double yaw = step * Camera.STEP_DEG;
             Set<Direction> seen = EnumSet.noneOf(Direction.class);
@@ -223,7 +223,7 @@ public final class CameraTest {
         e.rotateStep(1);
         check(!e.isExpanding(), "시점 조작은 연출을 끊는다");
         eq(Camera.DEFAULT_PITCH, e.pitch);
-        eq(90.0, e.targetYaw);
+        eq(45.0, e.targetYaw);
     }
 
     /** 시점 초기화(V)는 회전과 기울기를 모두 기본 3D 시점으로 되돌린다. */
@@ -240,7 +240,7 @@ public final class CameraTest {
         d.rotateStep(2);
         for (int i = 0; i < 200; i++) d.update(16);
         eq(Camera.DEFAULT_PITCH, d.pitch);
-        eq(180.0, d.yaw);
+        eq(90.0, d.yaw);
     }
 
     /** 키가 가리키는 화면 방향(탑뷰). 화면 오른쪽=0°, 아래=+90°. */
@@ -268,39 +268,37 @@ public final class CameraTest {
         }
     }
 
-    public static void cameraStepsByQuarterTurnAndAnimates() {
+    public static void cameraStepsByEighthTurnAndAnimates() {
         Camera c = new Camera();
-        check(Camera.STEP_DEG == 90, "시점 한 칸은 90°");
+        check(Camera.STEP_DEG == 45, "시점 한 칸은 45°");
         check(!c.isRotating() && c.yaw == 0, "처음에는 기본 시점");
         c.rotateStep(1);
         check(c.isRotating(), "회전 시작");
-        check(c.targetYaw == 90, "목표 90°: " + c.targetYaw);
+        check(c.targetYaw == 45, "목표 45°: " + c.targetYaw);
         check(c.mapKey(Direction.UP) == Direction.LEFT, "목표 시점 기준으로 입력이 해석된다");
         for (int i = 0; i < 200; i++) c.update(16);
-        check(!c.isRotating() && c.yaw == 90, "수렴 후 정지: " + c.yaw);
+        check(!c.isRotating() && c.yaw == 45, "수렴 후 정지: " + c.yaw);
         c.rotateStep(1);
         for (int i = 0; i < 200; i++) c.update(16);
-        check(c.yaw == 180, "두 칸이면 180°: " + c.yaw);
-        check(c.mapKey(Direction.UP) == Direction.DOWN, "180° 시점 매핑");
+        check(c.yaw == 90, "두 칸이면 90°: " + c.yaw);
+        check(c.mapKey(Direction.UP) == Direction.LEFT, "90° 시점 매핑");
         c.rotateStep(-2);
         for (int i = 0; i < 400; i++) c.update(16);
         check(c.yaw == 0, "되돌아옴: " + c.yaw);
         check(c.mapKey(Direction.UP) == Direction.UP, "기본 시점 매핑 복귀");
-        c.rotateStep(4);
+        c.rotateStep(8);
         for (int i = 0; i < 600; i++) c.update(16);
-        check(c.yaw == 360, "4칸 = 한 바퀴: " + c.yaw);
+        check(c.yaw == 360, "8칸 = 한 바퀴: " + c.yaw);
         check(c.mapKey(Direction.UP) == Direction.UP, "한 바퀴 돌면 매핑도 제자리");
         c.resetView();
         for (int i = 0; i < 200; i++) c.update(16);
         check(c.yaw == 360, "시점 초기화는 가장 가까운 기본 방향: " + c.yaw);
         check(c.pitch == Camera.DEFAULT_PITCH, "초기화 후 기울기");
-        for (int turn = 0; turn < 4; turn++) {
+        for (int turn = 0; turn < 8; turn++) {
             c.rotateStep(1);
             for (int i = 0; i < 200; i++) c.update(16);
-            double[] x = IsoRenderer.project(1, 0, 0, c.yaw, c.pitch);
-            double[] y = IsoRenderer.project(0, 1, 0, c.yaw, c.pitch);
-            check(Math.abs(x[0]) > .1 && Math.abs(x[1]) > .1
-                    && Math.abs(y[0]) > .1 && Math.abs(y[1]) > .1, "정면 구도에 정지하면 안 된다");
+            check(c.yaw == 360 + (turn + 1) * 45 && c.pitch == Camera.DEFAULT_PITCH,
+                    "8개 시점에 45°씩 정지하고 기울기를 유지해야 한다");
         }
     }
 

@@ -158,7 +158,7 @@ final class PlayScreen implements Screen {
             case KeyEvent.VK_DOWN -> {
                 if (!flat) move(Direction.BELOW);
             }
-            // ← / →: 아이소메트릭 구도 사이를 90°씩 회전. 2D 탑뷰에서는 고정
+            // ← / →: 45°씩 8방향 회전. 2D 탑뷰에서는 고정
             case KeyEvent.VK_LEFT -> {
                 if (!flat) cam.rotateStep(1);
             }
@@ -312,7 +312,7 @@ final class PlayScreen implements Screen {
             helpLine(g, w, "Z 되돌리기   Y 다시 하기   R 리셋   Esc 일시정지", h - 16);
             return;
         }
-        helpLine(g, w, "인접 칸 클릭: 6방향 이동   W A S D 평면 이동   ↑ ↓ 위·아래   ← → 회전(90°)", h - 38);
+        helpLine(g, w, "인접 칸 클릭: 6방향 이동   W A S D 평면 이동   ↑ ↓ 위·아래   ← → 회전(45°·8방향)", h - 38);
         helpLine(g, w, "Z 되돌리기   Y 다시 하기   R 리셋   Esc 일시정지   V 시점 초기화   Tab 층 강조"
                 + (layerFocus ? "(켜짐)" : ""), h - 16);
     }

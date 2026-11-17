@@ -78,13 +78,13 @@ public final class AllTests {
         test("저장: 파일 왕복", AllTests::saveRoundTrip);
         test("저장: 손상 파일은 초기 상태", AllTests::saveCorrupt);
         test("카메라: 기본 시점 입력 매핑", sokoban.ui.CameraTest::defaultViewIsIdentity);
-        test("카메라: 4방향 아이소메트릭 시점의 키 매핑", sokoban.ui.CameraTest::mappingIsBijectionForEveryQuarterTurn);
+        test("카메라: 8방향 시점의 키 매핑", sokoban.ui.CameraTest::mappingIsBijectionForEveryEighthTurn);
         test("카메라: 모든 각도에서 키 4개가 서로 다른 방향", sokoban.ui.CameraTest::mappingIsBijectionAtEveryAngle);
         test("카메라: 90° 회전 시 입력이 화면 기준으로 회전", sokoban.ui.CameraTest::quarterTurnRotatesMapping);
         test("카메라: 45° 반 걸음 시점은 격자 축이 화면 축과 나란", sokoban.ui.CameraTest::eighthTurnMappingFollowsScreen);
         test("카메라: 45° 시점에서도 키와 화면 방향이 한 사분면 안쪽", sokoban.ui.CameraTest::eighthTurnMappingStaysWithinOneQuadrant);
         test("카메라: 위/아래 키는 시점과 무관", sokoban.ui.CameraTest::verticalKeysIgnoreCamera);
-        test("카메라: 90° 회전·아이소메트릭 유지·시점 초기화", sokoban.ui.CameraTest::cameraStepsByQuarterTurnAndAnimates);
+        test("카메라: 45° 단위 8방향 회전·시점 초기화", sokoban.ui.CameraTest::cameraStepsByEighthTurnAndAnimates);
         test("카메라: 탑뷰는 격자가 정사각 타일로 투영", sokoban.ui.CameraTest::topViewProjectsSquareTiles);
         test("카메라: 탑뷰에서 W/A/S/D가 화면 방향 그대로", sokoban.ui.CameraTest::topViewKeyMappingFollowsScreen);
         test("카메라: 탑뷰·기본 시점 자세 고정값", sokoban.ui.CameraTest::topViewPoseConstants);
@@ -92,7 +92,7 @@ public final class AllTests {
         test("카메라: 시점 초기화가 기울기까지 되돌림", sokoban.ui.CameraTest::resetViewRestoresDefaultTilt);
         test("한글 입력기: 자모 키를 영문 단축키로 보정", sokoban.ui.CameraTest::koreanImeKeysMapToPhysicalKeys);
         test("마우스: 2D 인접 칸 클릭과 먼 칸 무시", sokoban.ui.MouseMovesTest::flatNeighbourClicksAndIgnoredCells);
-        test("마우스: 4개 시점에서 6방향과 수직 면 클릭", sokoban.ui.MouseMovesTest::allSixCellsAtEveryIsometricAngle);
+        test("마우스: 8개 시점에서 6방향과 수직 면 클릭", sokoban.ui.MouseMovesTest::allSixCellsAtEveryCameraAngle);
         test("마우스: 막힘·위아래 밀기·구멍·되돌리기", sokoban.ui.MouseMovesTest::blockedClicksAndVerticalPushes);
         test("마우스: 창 크기 변경·회전 중 입력 차단", sokoban.ui.MouseMovesTest::resizeAnimationAndClearedTargets);
         test("출고 레벨: 1~3단계는 2D, 4단계부터 3D", AllTests::shippedLevelStructure);
